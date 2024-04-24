@@ -23,6 +23,7 @@ const cart_reducer = (state, action) => {
           return cartItem
         }
       })
+       return tempCart
     }
     const newItem = {
       id: id + color,
