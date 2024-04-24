@@ -6,7 +6,6 @@ import {
   Home,
   Checkout,
   Error,
-  Private,
   Products,
   SingleProduct,
   Cart,
