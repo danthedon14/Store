@@ -7,7 +7,7 @@ import {
   CLEAR_CART,
   COUNT_CART_TOTALS,
 } from '../actions'
-import { ThemeConsumer } from 'styled-components'
+
 
 const getLocalStorage = () => {
   let cart = localStorage.getItem('fcart')
