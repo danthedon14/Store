@@ -8,7 +8,7 @@ import {
   FILTER_PRODUCTS,
   CLEAR_FILTERS,
 } from '../actions'
-import ListView from '../components/ListView'
+
 
 
 
@@ -44,7 +44,7 @@ const filter_reducer = (state, action) => {
   }
 
   if (action.type === SORT_PRODUCTS) {
-    const { sort, filtered_products, product } = state;
+    const { sort, filtered_products } = state;
     let tempProducts = [...filtered_products]
     if (sort === 'price-lowest') {
       tempProducts = tempProducts.sort((a, b) => a.price - b.price)
