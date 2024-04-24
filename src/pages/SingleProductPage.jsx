@@ -25,16 +25,16 @@ const SingleProductPage = () => {
     fetchSingleProduct, } = useProductsContext()
 
   useEffect(() => {
-    fetchSingleProduct(`${url}${id}`)
-  }, [id])
+    fetchSingleProduct(`${url}${id}`);
+  }, [fetchSingleProduct, id]);
 
   useEffect(() => {
     if (error) {
       setTimeout(() => {
-        navigate('/')
-      }, 3000)
+        navigate('/');
+      }, 3000);
     }
-  }, [error])
+  }, [error, navigate]);
 
   if (loading) {
     return <Loading />
