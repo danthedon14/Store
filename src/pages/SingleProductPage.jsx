@@ -26,15 +26,16 @@ const SingleProductPage = () => {
 
   useEffect(() => {
     fetchSingleProduct(`${url}${id}`);
-  }, [fetchSingleProduct, id]);
-
+    // eslint-disable-next-line
+  }, [id]);
   useEffect(() => {
     if (error) {
       setTimeout(() => {
         navigate('/');
       }, 3000);
     }
-  }, [error, navigate]);
+    // eslint-disable-next-line
+  }, [error]);
 
   if (loading) {
     return <Loading />
