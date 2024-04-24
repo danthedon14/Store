@@ -1,70 +1,90 @@
-import React, { useEffect, useContext, useReducer } from 'react'
-import reducer from '../reducers/cart_reducer'
 import {
   ADD_TO_CART,
-  REMOVE_CART_ITEM,
-  TOGGLE_CART_ITEM_AMOUNT,
   CLEAR_CART,
   COUNT_CART_TOTALS,
+  REMOVE_CART_ITEM,
+  TOGGLE_CART_ITEM_AMOUNT,
 } from '../actions'
 
-
-const getLocalStorage = () => {
-  let cart = localStorage.getItem('fcart')
-  if (cart) {
-    return JSON.parse(localStorage.getItem('fcart'))
-  } else {
-    return []
+const cart_reducer = (state, action) => {
+  if (action.type === ADD_TO_CART) {
+    const { id, color, amount, product } = action.payload;
+    const tempItem = state.cart.find((i) => i.id === id + color)
+    if (tempItem) {
+      const tempCart = state.cart.map((cartItem) => {
+        if (cartItem.id === id + color) {
+          let newAmount = cartItem.amount + amount;
+          if (newAmount > cartItem.max) {
+            newAmount = cartItem
+          }
+          return { ...cartItem, amount: newAmount }
+        }
+        else {
+          return cartItem
+        }
+      })
+    }
+    const newItem = {
+      id: id + color,
+      name: product.name,
+      color,
+      amount,
+      image: product.images[0].url,
+      price: product.price,
+      max: product.stock
+    }
+    return { ...state, cart: [...state.cart, newItem] }
   }
-}
 
-const initialState = {
-  cart: getLocalStorage(),
-  total_items: 0,
-  total_amount: 0,
-  shipping_fee: 534,
-}
 
-const CartContext = React.createContext()
+  if (action.type === REMOVE_CART_ITEM) {
+    const tempCart = state.cart.filter((item) => item.id !== action.payload)
+    return { ...state, cart: tempCart }
+  }
 
-export const CartProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, initialState)
-  // add to cart
-  const addToCart = (id, color, amount, product) => {
-    dispatch({
-      type: ADD_TO_CART,
-      payload: { id, color, amount, product }
+  if (action.type === CLEAR_CART) {
+    return { ...state, cart: [] }
+  }
+  if (action.type === TOGGLE_CART_ITEM_AMOUNT) {
+    const { id, value } = action.payload
+    const tempCart = state.cart.map((item) => {
+      if (item.id === id) {
+        if (value === 'inc') {
+          let newAmount = item.amount + 1
+          if (newAmount > item.max) {
+            newAmount = item.max
+          }
+          return { ...item, amount: newAmount }
+        }
+        if (value === 'dec') {
+          let newAmount = item.amount - 1
+          if (newAmount < 1) {
+            newAmount = 1
+          }
+          return { ...item, amount: newAmount }
+        }
+      }
+      return item
     })
+    return { ...state, cart: tempCart }
+  }
+  if (action.type === CLEAR_CART) {
+    return { ...state, cart: [] }
   }
 
-  // remove items
+  if (action.type === COUNT_CART_TOTALS) {
+    const { total_items, total_amount } = state.cart.reduce((total, cartItem) => {
+      const { amount, price } = cartItem;
+      total.total_items += amount
+      total.total_amount += price * amount
+      return total;
 
-  const removeItem = (id) => {
-    dispatch({ type: REMOVE_CART_ITEM, payload: id })
+    }, {
+      total_items: 0, total_amount: 0
+    })
+    return { ...state, total_items, total_amount }
   }
-
-  // toggle amount 
-
-  const toggleAmount = (id, value) => {
-    dispatch({ type: TOGGLE_CART_ITEM_AMOUNT, payload: { id, value } })
-  }
-
-  // clear Cart
-
-  const clearCart = () => {
-    dispatch({ type: CLEAR_CART })
-  }
-
-  useEffect(() => {
-    dispatch({ type: COUNT_CART_TOTALS })
-    localStorage.setItem('fcart', JSON.stringify(state.cart))
-  }, [state.cart])
-
-  return (
-    <CartContext.Provider value={{ ...state, addToCart, removeItem, toggleAmount, clearCart }}>{children}</CartContext.Provider>
-  )
+  throw new Error(`No Matching "${action.type}" - action type`)
 }
-// make sure use
-export const useCartContext = () => {
-  return useContext(CartContext)
-}
+
+export default cart_reducer
